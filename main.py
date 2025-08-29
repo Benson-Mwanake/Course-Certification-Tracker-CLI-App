@@ -1,4 +1,3 @@
-# main.py
 from lib.cli import run_cli
 
 if __name__ == "__main__":

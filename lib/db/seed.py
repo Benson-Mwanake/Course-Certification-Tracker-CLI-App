@@ -1,4 +1,3 @@
-# lib/db/seed.py
 from datetime import date, timedelta
 from .models import SessionLocal, init_db, Institution, Course, Certification
 
@@ -7,7 +6,6 @@ def seed():
     init_db()
     session = SessionLocal()
 
-    # avoid double seeding
     if session.query(Institution).count() > 0:
         session.close()
         print("Database already seeded.")

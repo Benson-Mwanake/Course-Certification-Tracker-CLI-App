@@ -1,4 +1,3 @@
-# lib/cli.py
 import sys
 from datetime import date, timedelta
 

@@ -1,9 +1,7 @@
-# lib/db/models.py
 import os
 from sqlalchemy import create_engine, Column, Integer, String, Text, Date, ForeignKey
 from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 
-# DB path beside this file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "certification_tracker.db")
 DATABASE_URL = f"sqlite:///{DB_PATH}"
@@ -61,5 +59,4 @@ class Certification(Base):
 
 
 def init_db():
-    # Create tables if they don't exist
     Base.metadata.create_all(bind=engine)
