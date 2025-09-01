@@ -44,6 +44,12 @@ A Python CLI application for managing **institutions, courses, and certification
 ├── Pipfile.lock
 └── README.md
 ```
+---
+Before you begin, make sure you have installed:
+
+* **Python 3.12.3 (or higher)**
+* **Pipenv**
+* **SQLite 3**
 
 ---
 
@@ -112,3 +118,5 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## Author
 
 Developed by **Benson Mwanake** as part of the **Moringa School Phase 3 Final Project**.
+
+
