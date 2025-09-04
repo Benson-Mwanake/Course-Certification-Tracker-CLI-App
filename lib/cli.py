@@ -1,8 +1,13 @@
 import sys
-from datetime import date, timedelta
-
-from lib.helpers import clear_screen, prompt_int, prompt_date, confirm, divider
 from lib.db.models import SessionLocal, init_db, Institution, Course, Certification
+from lib.helpers import (
+    clear_screen,
+    prompt_int,
+    prompt_non_empty,
+    prompt_date,
+    confirm,
+    divider,
+)
 
 
 # ---------------------- Entrypoint ----------------------
@@ -65,10 +70,10 @@ def institutions_menu():
 def add_institution():
     clear_screen()
     print("Add Institution")
-    name = input("Name: ").strip()
-    location = input("Location: ").strip() or None
+    name = prompt_non_empty("Name: ")
+    location = input("Location (optional): ").strip() or None
     year = prompt_int("Year (e.g., 2019, blank to skip): ", allow_blank=True)
-    inst_type = input("Type (e.g., Bootcamp/University): ").strip() or None
+    inst_type = input("Type (e.g., Bootcamp/University, optional): ").strip() or None
 
     session = SessionLocal()
     try:
@@ -78,7 +83,7 @@ def add_institution():
         print(f"\nSaved: {inst}")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError saving institution: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
@@ -138,7 +143,7 @@ def update_institution():
         print("\nUpdated successfully.")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError updating institution: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
@@ -153,7 +158,7 @@ def delete_institution():
             input("\nPress Enter to continue...")
             return
         print(
-            f"\nThis will delete the institution (courses/certs remain but will be orphaned if you remove FKs)."
+            f"\nThis will delete the institution and ALL its courses & certifications:\n  {inst}"
         )
         if confirm():
             session.delete(inst)
@@ -163,7 +168,7 @@ def delete_institution():
             print("Cancelled.")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError deleting institution: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
@@ -211,7 +216,10 @@ def list_courses(pause=False):
             print("  (no courses)")
         else:
             for c in inst.courses:
-                print(f"  [{c.id}] {c.name} | Duration: {c.duration or '-'}")
+                course_tuple = (c.id, c.name, c.duration or "-")
+                print(
+                    f"  [{course_tuple[0]}] {course_tuple[1]} | Duration: {course_tuple[2]}"
+                )
                 if c.description:
                     print(f"     - {c.description}")
     session.close()
@@ -228,9 +236,9 @@ def add_course():
             input("\nPress Enter to continue...")
             return
         print(f"\nAdding course under: {inst.name}")
-        name = input("Course name: ").strip()
+        name = prompt_non_empty("Course name: ")
         desc = input("Description (optional): ").strip() or None
-        duration = input("Duration (e.g., '6 months'): ").strip() or None
+        duration = input("Duration (e.g., '6 months', optional): ").strip() or None
 
         c = Course(
             institution_id=inst.id, name=name, description=desc, duration=duration
@@ -240,7 +248,7 @@ def add_course():
         print(f"\nSaved: [{c.id}] {c.name}")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError adding course: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
@@ -277,7 +285,7 @@ def update_course():
         print("\nUpdated successfully.")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError updating course: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
@@ -299,7 +307,7 @@ def delete_course():
             print("Cancelled.")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError deleting course: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
@@ -350,7 +358,7 @@ def list_certifications(pause=False):
                 f"[{c.id}] {c.title} | Level: {c.level or '-'} | Course: {c.course.name} | Inst: {inst.name}"
             )
             print(
-                f"     Issued: {c.issue_date or '-'} | Expires: {c.expiry_date or '—'}"
+                f"     Issued: {c.issue_date or '-'} | Expires: {c.expiry_date or '—'} | Status: {c.status}"
             )
     session.close()
     if pause:
@@ -365,9 +373,8 @@ def add_certification():
         if not c:
             input("\nPress Enter to continue...")
             return
-
         print(f"\nAdding certification under course: {c.name}")
-        title = input("Title: ").strip()
+        title = prompt_non_empty("Title: ")
         level = input("Level (optional): ").strip() or None
         issue = prompt_date(
             "Issue date (YYYY-MM-DD, blank to skip): ", allow_blank=True
@@ -385,10 +392,10 @@ def add_certification():
         )
         session.add(cert)
         session.commit()
-        print(f"\nSaved: [{cert.id}] {cert.title}")
+        print(f"\nSaved: [{cert.id}] {cert.title} ({cert.status})")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError adding certification: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
@@ -435,7 +442,7 @@ def update_certification():
         print("\nUpdated successfully.")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError updating certification: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
@@ -457,24 +464,27 @@ def delete_certification():
             print("Cancelled.")
     except Exception as e:
         session.rollback()
-        print(f"\nError: {e}")
+        print(f"\nError deleting certification: {e}")
     finally:
         session.close()
         input("\nPress Enter to continue...")
 
 
-# ---------------------- Reports (basic) ----------------------
+# ---------------------- Reports ----------------------
 def reports_menu():
     while True:
         clear_screen()
         print("\n--- Reports Menu ---")
         print("1. View All Certifications by Institution")
-        print("2. Back to Main Menu")
+        print("2. View Expiring (≤30 days) / Expired")
+        print("3. Back to Main Menu")
         choice = input("Select an option: ").strip()
 
         if choice == "1":
             report_certs_by_institution()
         elif choice == "2":
+            report_expiry_overview()
+        elif choice == "3":
             break
         else:
             input("\nInvalid choice. Press Enter to try again...")
@@ -489,19 +499,56 @@ def report_certs_by_institution():
         input("\nPress Enter to continue...")
         return
 
+    report = {}
     for inst in institutions:
-        divider(f"{inst.name}")
-        if not inst.courses:
+        course_list = []
+        for course in inst.courses:
+            certs = [
+                (cert.title, cert.status) for cert in course.certifications
+            ]
+            course_list.append((course.name, certs))
+        report[inst.name] = course_list
+
+    divider("Certifications by Institution")
+    for inst_name, courses in report.items():
+        print(f"\n{inst_name}")
+        if not courses:
             print("  (no courses)")
             continue
-        for course in inst.courses:
-            print(f"  Course: {course.name}")
-            if not course.certifications:
+        for course_name, certs in courses:
+            print(f"  Course: {course_name}")
+            if not certs:
                 print("    (no certifications)")
             else:
-                for cert in course.certifications:
-                    print(
-                        f"    - [{cert.id}] {cert.title} | Level: {cert.level or '-'} | Issue: {cert.issue_date or '-'} | Expiry: {cert.expiry_date or '—'}"
-                    )
+                for title, status in certs:
+                    print(f"    - {title} ({status})")
+    session.close()
+    input("\nPress Enter to continue...")
+
+
+def report_expiry_overview():
+    session = SessionLocal()
+    from datetime import date, timedelta
+
+    today = date.today()
+    soon = today + timedelta(days=30)
+
+    certs = (
+        session.query(Certification)
+        .order_by(Certification.expiry_date.asc().nulls_last())
+        .all()
+    )
+    divider("Expiry Overview")
+    found = False
+    for c in certs:
+        if c.expiry_date is None:
+            continue
+        if c.expiry_date <= soon or c.is_expired:
+            found = True
+            print(
+                f"[{c.id}] {c.title} | Course: {c.course.name} | Inst: {c.course.institution.name} | Expires: {c.expiry_date} | Status: {c.status}"
+            )
+    if not found:
+        print("No expiring or expired certifications within 30 days.")
     session.close()
     input("\nPress Enter to continue...")

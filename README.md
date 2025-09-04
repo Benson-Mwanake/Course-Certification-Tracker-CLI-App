@@ -89,6 +89,53 @@ Run the CLI with:
 ```bash
 python main.py
 ```
+You will see a main menu like this:
+
+```
+===========================================
+  Course & Certification Tracker
+===========================================
+1. Manage Institutions
+2. Manage Courses
+3. Manage Certifications
+4. View Reports
+5. Exit
+-------------------------------------------
+```
+
+### 1. Manage Institutions
+
+* **Add Institution** → Create a new institution with name, location, year, and type (e.g., University, Bootcamp).
+* **List Institutions** → Displays all saved institutions with details.
+* **Update Institution** → Edit institution details (name, location, year, type).
+* **Delete Institution** → Remove an institution (courses and certifications remain, but without their institution link).
+
+### 2. Manage Courses
+
+* **Add Course** → Assign a new course to an institution.
+* **List Courses** → View all courses grouped under their institutions.
+* **Update Course** → Edit course details like name, description, or duration.
+* **Delete Course** → Remove a course and unlink its certifications.
+
+### 3. Manage Certifications
+
+* **Add Certification** → Add a certification under a course, with title, level, issue date, and optional expiry date.
+* **List Certifications** → Show all certifications, grouped by course and institution.
+* **Update Certification** → Edit details of an existing certification.
+* **Delete Certification** → Remove a certification permanently.
+
+### 4. View Reports
+
+* **View All Certifications by Institution** → Displays certifications grouped under their institutions and courses.
+* **View Expiring (≤30 days) / Expired** → Displays certifications that are about to expire or have already expired.
+
+### Example Workflow
+
+1. Add an institution → *"Moringa School"*.
+2. Add a course under it → *"Software Engineering"*.
+3. Add a certification → *"Web APIs Professional"* with issue/expiry dates.
+4. List certifications to confirm everything is saved.
+5. Use reports to view certifications grouped by institution.
 
 ---
 
@@ -118,5 +165,3 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## Author
 
 Developed by **Benson Mwanake** as part of the **Moringa School Phase 3 Final Project**.
-
-

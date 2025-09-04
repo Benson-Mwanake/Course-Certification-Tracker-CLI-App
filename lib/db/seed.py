@@ -1,11 +1,10 @@
 from datetime import date, timedelta
-from .models import SessionLocal, init_db, Institution, Course, Certification
+from lib.db.models import SessionLocal, init_db, Institution, Course, Certification
 
 
 def seed():
     init_db()
     session = SessionLocal()
-
     if session.query(Institution).count() > 0:
         session.close()
         print("Database already seeded.")
@@ -49,25 +48,31 @@ def seed():
                 title="Pandas Pro",
                 level="Associate",
                 issue_date=today,
-                expiry_date=today + timedelta(days=30),
+                expiry_date=today + timedelta(days=20),
             ),
             Certification(
                 course_id=se.id,
                 title="Web APIs",
                 level="Professional",
                 issue_date=today,
-                expiry_date=today + timedelta(days=90),
+                expiry_date=today + timedelta(days=120),
             ),
             Certification(
                 course_id=ai.id,
                 title="AI Ethics",
+                level="Associate",
+                issue_date=today - timedelta(days=400),
+                expiry_date=today - timedelta(days=10),
+            ),
+            Certification(
+                course_id=se.id,
+                title="Docker Basics",
                 level="Associate",
                 issue_date=today,
                 expiry_date=None,
             ),
         ]
     )
-
     session.commit()
     session.close()
     print("Database seeded!")
