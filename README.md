@@ -29,55 +29,83 @@ A Python CLI application for managing **institutions, courses, and certification
 │   │   ├── __init__.py
 │   │   ├── migrations
 │   │   │   ├── env.py
+│   │   │   ├── __pycache__
+│   │   │   │   └── env.cpython-312.pyc
 │   │   │   ├── README
 │   │   │   ├── script.py.mako
 │   │   │   └── versions
-│   │   │       └── 14cd0018c693_init.py
+│   │   │       └── 99480ccd3e4b_init_tables.py
 │   │   ├── models.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── models.cpython-312.pyc
+│   │   │   └── seed.cpython-312.pyc
 │   │   └── seed.py
 │   ├── debug.py
 │   ├── helpers.py
 │   ├── __init__.py
 │   └── __pycache__
+│       ├── cli.cpython-312.pyc
+│       ├── helpers.cpython-312.pyc
+│       └── __init__.cpython-312.pyc
 ├── main.py
 ├── Pipfile
 ├── Pipfile.lock
 └── README.md
 ```
+
 ---
+
+## Prerequisites
+
 Before you begin, make sure you have installed:
 
 * **Python 3.12.3 (or higher)**
-* **Pipenv**
-* **SQLite 3**
+* **Pipenv** (for dependency management)
+* **SQLite 3** (database engine)
 
 ---
 
 ## Installation & Setup
 
-1. Clone the repository:
+1.  Clone the repository:
 
+    ```bash
+    git clone git@github.com:Benson-Mwanake/Course-Certification-Tracker-CLI-App.git
+    cd Course-Certification-Tracker-CLI-App
+    ```
+
+2.  Install dependencies using **pipenv**:
+
+    ```bash
+    pipenv install
+    ```
+
+3.  Activate the virtual environment:
+
+    ```bash
+    pipenv shell
+    ```
+
+4.  **Create Database Tables with Migrations:** The `alembic upgrade head` command applies all new migrations to your database, creating the necessary tables.
+
+    ```bash
+    cd lib/db
+    alembic upgrade head
+    ```
+
+5.  Seed the database with sample data:
+
+    ```bash
+    python -m lib.db.seed
+    ```
+
+---
+## Running New Migrations (Future Changes)
    ```bash
-   git clone git@github.com:Benson-Mwanake/Course-Certification-Tracker-CLI-App.git
-   cd Course-Certification-Tracker-CLI-App
-   ```
-
-2. Install dependencies using **pipenv**:
-
-   ```bash
-   pipenv install
-   ```
-
-3. Activate virtual environment:
-
-   ```bash
-   pipenv shell
-   ```
-
-4. Initialize and seed the database:
-
-   ```bash
-   python -m lib.db.seed
+   cd lib/db
+   alembic revision --autogenerate -m "describe changes"
+   alembic upgrade head
    ```
 
 ---
@@ -89,6 +117,7 @@ Run the CLI with:
 ```bash
 python main.py
 ```
+
 You will see a main menu like this:
 
 ```
@@ -108,14 +137,14 @@ You will see a main menu like this:
 * **Add Institution** → Create a new institution with name, location, year, and type (e.g., University, Bootcamp).
 * **List Institutions** → Displays all saved institutions with details.
 * **Update Institution** → Edit institution details (name, location, year, type).
-* **Delete Institution** → Remove an institution (courses and certifications remain, but without their institution link).
+* **Delete Institution** → Remove an institution and cascade delete its courses & certifications.
 
 ### 2. Manage Courses
 
 * **Add Course** → Assign a new course to an institution.
 * **List Courses** → View all courses grouped under their institutions.
 * **Update Course** → Edit course details like name, description, or duration.
-* **Delete Course** → Remove a course and unlink its certifications.
+* **Delete Course** → Remove a course and cascade delete its certifications.
 
 ### 3. Manage Certifications
 
@@ -139,12 +168,35 @@ You will see a main menu like this:
 
 ---
 
+## Debugging
+
+For quick inspection of the database contents, run:
+
+```bash
+python -m lib.debug
+```
+
+This will print out all institutions, courses, and certifications with their statuses.
+
+---
+
 ## Tech Stack
 
-* **Python 3.11+**
+* **Python 3.12.3**
 * **SQLAlchemy** (ORM)
-* **Alembic** (database migrations)
+* **Alembic** (migrations)
 * **SQLite** (local database)
+
+---
+
+## Contribution Guidelines
+
+Contributions are welcome! To contribute:
+
+1. Fork the repository
+2. Create a new feature branch
+3. Commit changes with clear messages
+4. Push to your fork and open a Pull Request
 
 ---
 
